@@ -1,7 +1,6 @@
 from sliding_window import pyramid, sliding_window
 from sklearn.externals import joblib
 import argparse
-import time
 import cv2
 import numpy as np
 from nms import non_max_suppression_fast
@@ -30,13 +29,17 @@ clf = joblib.load('ship_hog_svm_clf.pkl')
 
 # Define image and Window size
 image = cv2.imread('scenes/lb_1.png')
+cv2.namedWindow('Sliding Window',cv2.WINDOW_NORMAL)
+cv2.resizeWindow('Sliding Window',image.shape[1]/2,image.shape[0]/2)
+# Sliding window and image pyramid parameters
 (winW, winH) = (64, 64)
-
+scale = 2.0
+stepSize = 16
+bboxes = np.zeros(4,np.int64) # Variable to save the resulting bounding boxes
 # loop over the image pyramid
-for resized in pyramid(image, scale=1.5):
-	print resized.shape
+for i, resized in enumerate(pyramid(image, scale=scale)):
 	# loop over the sliding window for each layer of the pyramid
-	for (x, y, window) in sliding_window(resized, stepSize=32, windowSize=(winW, winH)):
+	for (x, y, window) in sliding_window(resized, stepSize=stepSize, windowSize=(winW, winH)):
 		# if the window does not meet our desired window size, ignore it
 		if window.shape[0] != winH or window.shape[1] != winW:
 			continue
@@ -49,11 +52,42 @@ for resized in pyramid(image, scale=1.5):
 		descriptor = np.transpose(hog.compute(cropped_img_resized))
 		y_pred = clf.predict(descriptor)
 		
-		if y_pred == 1:
-			print 'Ship found!'
-			time.sleep(3)
-		
-		cv2.imshow("Window", clone)
+		cv2.imshow("Sliding Window", clone)
 		cv2.imshow("Cropped", cropped_img)
 		cv2.waitKey(1)
-		time.sleep(0.025)
+
+		if y_pred == 1:
+			if i != 0:
+				bboxes = np.vstack((bboxes, np.array([
+					int(x*scale*i), int(y*scale*i),
+					int((x + winW)*scale*i), int((y + winH)*scale*i)])))
+			else:
+				bboxes = np.vstack((bboxes, np.array([
+					int(x),int(y),int(x + winW), int(y + winH)])))
+
+			print 'Ship found!'
+			cv2.waitKey(3000)
+
+bboxes = np.delete(bboxes, (0), axis=0)
+cv2.destroyAllWindows()
+
+img_bboxes = image.copy()
+for box in bboxes:
+	cv2.rectangle(img_bboxes, (box[0], box[1]), (box[2], box[3]), (0, 0, 255), 2)
+
+cv2.namedWindow('Bounding boxes',cv2.WINDOW_NORMAL)
+cv2.resizeWindow('Bounding boxes', img_bboxes.shape[1]/2,img_bboxes.shape[0]/2)
+cv2.imshow('Bounding boxes', img_bboxes)
+
+# Non maximal supression
+img_nms_bboxes = image.copy()
+nms_bboxes = non_max_suppression_fast(bboxes, 0.3)
+
+for box in nms_bboxes:
+	cv2.rectangle(img_nms_bboxes, (box[0], box[1]), (box[2], box[3]), (0, 255, 0), 2)
+
+cv2.namedWindow('Non maximal supression',cv2.WINDOW_NORMAL)
+cv2.resizeWindow('Non maximal supression', img_nms_bboxes.shape[1]/2,img_nms_bboxes.shape[0]/2)
+cv2.imshow('Non maximal supression', img_nms_bboxes)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
