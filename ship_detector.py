@@ -8,7 +8,7 @@ from nms import non_max_suppression_fast
 # HOG parametrization
 winSize = (32,32)
 blockSize = (16,16)
-blockStride = (4,4)
+blockStride = (8,8)
 cellSize = (8,8)
 nbins = 9
 derivAperture = 1
@@ -28,7 +28,7 @@ hog = cv2.HOGDescriptor(winSize,blockSize,blockStride,
 clf = joblib.load('ship_hog_svm_clf.pkl')
 
 # Define image and Window size
-image = cv2.imread('scenes/lb_1.png')
+image = cv2.imread('scenes/lb_2.png')
 cv2.namedWindow('Sliding Window',cv2.WINDOW_NORMAL)
 cv2.resizeWindow('Sliding Window',image.shape[1]/2,image.shape[0]/2)
 # Sliding window and image pyramid parameters

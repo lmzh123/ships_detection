@@ -3,6 +3,20 @@ import numpy as np
 
 # Malisiewicz et al.
 def non_max_suppression_fast(boxes, overlapThresh):
+	'''
+	This function performs non maximal supression over a set of bounding boxes
+	where the resulting boxes contain most of the information of the initial 
+	boxes.
+	Args:
+		boxes(numpy.array): Set of bounding boxes of shape=(None,4).
+		overlapThresh(float): Supression threshold for the overlapped area 
+		between boxes.
+
+	Returns:
+		boxes(numpy.array): Resulting boxes after performing the NMS of
+		shape=(None,4).
+	'''
+
 	# if there are no boxes, return an empty list
 	if len(boxes) == 0:
 		return []

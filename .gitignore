@@ -1,0 +1,3 @@
+*.pyc
+/scenes/*
+/ships_dataset/*
