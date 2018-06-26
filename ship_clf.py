@@ -1,4 +1,5 @@
 import os
+import zipfile
 import numpy as np 
 from sklearn import svm
 from sklearn.model_selection import train_test_split
@@ -6,9 +7,9 @@ from sklearn.metrics import classification_report,accuracy_score
 from sklearn.externals import joblib
 import cv2
 
-# Decompress dataset
+# Decompress dataset and testing images
 zip_ref = zipfile.ZipFile("dataset.zip", 'r')
-zip_ref.extractall('images')
+zip_ref.extractall()
 zip_ref.close()
 
 # Load dataset using their XML trees
