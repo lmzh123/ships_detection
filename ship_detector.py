@@ -28,7 +28,7 @@ hog = cv2.HOGDescriptor(winSize,blockSize,blockStride,
 clf = joblib.load('ship_hog_svm_clf.pkl')
 
 # Define image and Window size
-image = cv2.imread('scenes/lb_2.png')
+image = cv2.imread('scenes/lb_1.png')
 cv2.namedWindow('Sliding Window',cv2.WINDOW_NORMAL)
 cv2.resizeWindow('Sliding Window',image.shape[1]/2,image.shape[0]/2)
 # Sliding window and image pyramid parameters
@@ -37,7 +37,7 @@ scale = 2.0
 stepSize = 16
 bboxes = np.zeros(4,np.int64) # Variable to save the resulting bounding boxes
 # loop over the image pyramid
-for i, resized in enumerate(pyramid(image, scale=scale)):
+for i, resized in enumerate(pyramid(image, scale=scale, minSize=(500, 500))):
 	# loop over the sliding window for each layer of the pyramid
 	for (x, y, window) in sliding_window(resized, stepSize=stepSize, windowSize=(winW, winH)):
 		# if the window does not meet our desired window size, ignore it
@@ -66,7 +66,7 @@ for i, resized in enumerate(pyramid(image, scale=scale)):
 					int(x),int(y),int(x + winW), int(y + winH)])))
 
 			print 'Ship found!'
-			cv2.waitKey(3000)
+			cv2.waitKey(1500)
 
 bboxes = np.delete(bboxes, (0), axis=0)
 cv2.destroyAllWindows()
