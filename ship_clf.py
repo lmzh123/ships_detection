@@ -56,7 +56,10 @@ features = np.delete(features, (0), axis=0)
 labels = np.delete(labels, (0), axis=0).ravel()
 
 # Split data for training and testing
-X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(features, 
+													labels, 
+													test_size=0.2, 
+													random_state=42)
 print 'X_train: ', X_train.shape, 'y_train', y_train.shape
 print 'X_test: ', X_test.shape, 'X_test: ', y_test.shape
 
