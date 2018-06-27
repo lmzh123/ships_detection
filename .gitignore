@@ -1,3 +1,4 @@
 *.pyc
 /scenes/*
 /ships_dataset/*
+/.ipynb_checkpoints/*
