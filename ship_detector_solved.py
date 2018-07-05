@@ -6,25 +6,38 @@ import numpy as np
 from nms import non_max_suppression_fast
 
 # HOG parametrization
-# --- code here ---
+winSize = (32,32)
+blockSize = (16,16)
+blockStride = (8,8)
+cellSize = (8,8)
+nbins = 9
+derivAperture = 1
+winSigma = -1.
+histogramNormType = 0
+L2HysThreshold = 0.2
+gammaCorrection = 1
+nlevels = 64
+useSignedGradients = True
 
 # Define HOG descriptor 
-# --- code here ---
+hog = cv2.HOGDescriptor(winSize,blockSize,blockStride,
+	cellSize,nbins,derivAperture,winSigma,histogramNormType
+	,L2HysThreshold,gammaCorrection,nlevels, useSignedGradients)
 
 # Load the classifier stored in the pickle model
-# --- code here ---
+clf = joblib.load('ship_hog_svm_clf.pkl')
 
 # Define image and Window size
-image = cv2.imread() # --- code here ---
+image = cv2.imread('scenes/lb_1.png')
 cv2.namedWindow('Sliding Window',cv2.WINDOW_NORMAL)
 cv2.resizeWindow('Sliding Window',image.shape[1]/2,image.shape[0]/2)
 
 # Image pyramid parameters
-scale = 0.0 # --- code here ---
-minSize = (0, 0) # --- code here ---
-# Sliding window parameters
-stepSize = 0 # --- code here ---
-(winW, winH) = (0, 0) # --- code here ---
+scale = 2.0
+minSize = (500, 500)
+# Sliding window parameters 
+stepSize = 16
+(winW, winH) = (64, 64)
 
 bboxes = np.zeros(4,np.int64) # Variable to save the resulting bounding boxes
 # loop over the image pyramid
@@ -40,14 +53,15 @@ for i, resized in enumerate(pyramid(image, scale=scale, minSize=minSize)):
 		cv2.rectangle(clone, (x, y), (x + winW, y + winH), (0, 255, 0), 2)
 		
 		# Cropped the resized image using x,y,winW, winH
-		# --- code here ---
-		# Resize the cropped image so the HOG descriptor can be obtained
-		# --- code here ---
+		cropped_img = resized[y:y + winH, x:x + winW]
+		# Resize it so the HOG descriptor can be obtained
+		cropped_img_resized = cv2.resize(cropped_img, winSize)
 		# Compute the HOG descriptor
-		# --- code here ---
-		# Using the classifier obtain the prediction and call it y_pred
-		# --- code here ---
+		descriptor = np.transpose(hog.compute(cropped_img_resized))
+		# Using the classifier predict the output of the obtained descriptor
+		y_pred = clf.predict(descriptor)
 		
+		# Display both the Sliding window and the 
 		cv2.imshow("Sliding Window", clone)
 		cv2.imshow("Cropped", cropped_img)
 		cv2.waitKey(1)
