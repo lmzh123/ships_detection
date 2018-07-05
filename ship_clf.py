@@ -12,7 +12,7 @@ zip_ref = zipfile.ZipFile("dataset.zip", 'r')
 zip_ref.extractall()
 zip_ref.close()
 
-# Load dataset using their XML trees
+# Load dataset images
 path = 'ships_dataset'
 img_files = [(os.path.join(root, name))
     for root, dirs, files in os.walk(path)
